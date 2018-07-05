@@ -1,0 +1,10 @@
+﻿@model SamplesRequest.Models.Models.Entities.SampleRequest
+@{ 
+    string url = $"{Context.Request.Scheme}://{Context.Request.Host.Value}/SampleRequests/ReviewAndApprove/{Model.id}";
+}
+
+
+<div>
+    <p>One request has been created for review and realease this request please follow this </p> <a href="@url">link</a>
+
+</div>

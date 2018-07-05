@@ -1,0 +1,96 @@
+﻿<h1>Workflow steps</h1>
+
+<div *ngIf="isLoading">
+    <i class="fab fa-whmcs fa-pulse fa-10x"></i>
+</div>
+
+<p-growl [value]="msgs"></p-growl>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="col-sm-6" *ngIf="!isLoading">
+    <button (click)="addNewStep()" class="btn"><i class="glyphicon glyphicon-plus-sign"></i> Add New Step</button>
+    <p-accordion *ngFor="let step of steps; let i = index">
+        <p-accordionTab>
+            <p-header>
+                <label>{{step.name || 'New Workflow Step'}}</label>
+                <div class="pull-right" style="z-index: 2000">
+                    <button (click)="confirmBeforeDelete(step); $event.preventDefault();" type="button"><i class="glyphicon glyphicon-minus-sign"></i></button>
+                    <button (click)="moveStep(step,1);$event.preventDefault()"type="button"><i class="glyphicon glyphicon-chevron-up"></i></button>
+                    <button (click)="moveStep(step,-1);$event.preventDefault()"type="button"><i class="glyphicon glyphicon-chevron-down"></i></button>
+                </div>
+            </p-header>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form #form="ngForm" [name]="'form-'+i">
+                        <div class="form-group">
+                            <label>Step Name</label>
+                            <input type="text" class="form-control" [(ngModel)]="step.name" [name]="'step_name-'+ i" #stepname="ngModel" required />
+
+                            <div *ngIf="stepname.invalid && (stepname.touched || stepname.dirty) ">
+                                <br />
+
+                                <span *ngIf="stepname.errors.required" class="alert alert-danger">You need to put a name</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea class="form-control" [(ngModel)]="step.description" [name]="'description-'+i"></textarea>
+                        </div>
+                        <div class="form-grop">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" [(ngModel)]="step.only_if_lab_test" [name]="'only_if_lab_test-' + i" /> Only if lab test is required ?
+                                </label>
+                            </div>
+                        </div>
+
+                        <br />
+
+                        <h4>Responsibles</h4>
+
+                        <div class="form-grop">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Primary Responsible</th>
+                                        <th>Secondary Responsible</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let responsible of step.responsibles; let u = index">
+                                        <td>
+                                            <p-autoComplete [hidden]="responsible.primary_responsible_id" [suggestions]="filterUsers" (completeMethod)="searchUser($event)" (onSelect)="bindPrimaryResponsible($event,responsible)" field="name"></p-autoComplete>
+                                            <label [hidden]="!responsible.primary_responsible_name">{{responsible.primary_responsible_name}}</label>
+                                        </td>
+                                        <td>
+                                            <p-autoComplete [hidden]="responsible.secondary_responsible_id" [suggestions]="filterUsers" (completeMethod)="searchUser($event)" (onSelect)="bindSecundaryResponsible($event,responsible)" field="name"></p-autoComplete>
+                                            <label [hidden]="!responsible.secondary_responsible_name">{{responsible.secondary_responsible_name}}</label>
+                                        </td>
+                                        <td>
+                                            <div class="row">
+                                                <button type="button" (click)="DeleteUserById(step,responsible)" class="fa"><i class="glyphicon glyphicon-minus-sign"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5">
+                                            <button (click)="addNewWorkflowUser(step)" class="btn"><i class="glyphicon glyphicon-plus-sign"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <button type="button" *ngIf="!isSubmiting" (click)="save(step);" class="btn btn-default" [disabled]="form.invalid">Submit</button>
+                                <button type="button" *ngIf="isSubmiting" class="btn btn-default"><i class="fab fa-whmcs fa-pulse"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </p-accordionTab>
+    </p-accordion>
+</div>

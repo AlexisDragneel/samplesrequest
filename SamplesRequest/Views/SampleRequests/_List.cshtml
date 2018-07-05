@@ -1,0 +1,43 @@
+﻿@model List<SampleRequestWithStatusDto>
+
+<table class="table table-bordered table-responsive">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Project Name</th>
+            <th>Priority</th>
+            <th>Client</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model)
+            {
+            <tr>
+                <td>
+                    @request.id
+                </td>
+                <td>
+                    @request.project_name
+                </td>
+                <td>
+                    @request.priority.name
+                </td>
+                <td>
+                    @request.address?.client?.name
+                </td>
+                <td>
+                    @request.current_status
+                </td>
+                <td>
+                <a asp-controller="SampleRequests" asp-action="ReviewAndApprove" asp-route-id="@request.id">
+                    <i class="glyph glyphicon-search"></i>
+                </a>
+                </td>
+            </tr>
+
+
+        }
+    </tbody>
+</table>

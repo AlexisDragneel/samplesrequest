@@ -1,0 +1,67 @@
+﻿<h1>Dashboard</h1>
+
+<a class="btn btn-primary pull-right" [routerLink]="['SampleRequests/Create/']">New</a><br />
+
+<p-table #dt [value]="requests" [totalRecords]="totalRecords" [paginator]="true" [rows]="5" [rowsPerPageOptions]="rowsPerPage" [responsive]="true"
+         [loading]="loading" [lazy]="true" (onLazyLoad)="loadRequestLazy($event)">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Id</th>
+            <th>Project Name</th>
+            <th>Priority</th>
+            <th>Client</th>
+            <th>Status</th>
+            <th>Completed percentage</th>
+            <th>Actions</th>
+        </tr>
+        <tr>
+            <th>
+                <input pInputText type="text" [(ngModel)]="id_filter" (input)="dt.filter($event.value, serie, 'in')" />
+            </th>
+            <th>
+                <input pInputText type="text" [(ngModel)]="project_filter" (input)="dt.filter($event.value, serie, 'in')" />
+            </th>
+            <th>
+                <select name="priorities" class="form-control" [(ngModel)]="priority_filter" 
+                        (change)="dt.filter($event.value, serie, 'equals')">
+                    <option [value]="0">All</option>
+                    <option *ngFor="let priority of priorities" [value]="priority.id">{{priority.name}}</option>
+                </select>
+            </th>
+            <th>
+                <input pInputText type="text" [(ngModel)]="client_filter" (input)="dt.filter($event.value, serie, 'in')" />
+            </th>
+            <th>
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-request>
+        <tr>
+            <td>
+                {{request.id}}
+            </td>
+            <td>
+                {{request.project_name}}
+            </td>
+            <td>
+                {{request.priority.name}}
+            </td>
+            <td>
+                {{request.address ? request.address.client.name : ""}}
+            </td>
+            <td>
+                {{request.current_status}}
+            </td>
+            <td>
+                <p-slider [(ngModel)]="request.current_percentage" [min]="0" [max]="1" disabled></p-slider>
+            </td>
+            <td>
+                <a [routerLink]="['SampleRequests/ReviewAndApprove/', request.id]">
+                    <i class="fa fa-calendar-o"></i>
+                </a>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>

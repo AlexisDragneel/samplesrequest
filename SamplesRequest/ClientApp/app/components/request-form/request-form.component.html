@@ -1,0 +1,291 @@
+﻿<h1>Sample Request</h1>
+
+<p-growl [value]="msgs"></p-growl>
+
+<div *ngIf="isLoading">
+    <i class="fab fa-whmcs fa-pulse fa-10x"></i>
+</div>
+
+<div *ngIf="errors.length > 0" class="alert alert-danger">
+    <ul class="disc-list">
+        <li *ngFor="let error of errors" >{{error}}</li>
+    </ul>
+</div>
+
+<form *ngIf="!isLoading" #form="ngForm">
+    <table class="table">
+        <tr>
+            <td>
+                <div class="panel panel-default">
+                    <div class="panel-heading xylem-head">
+                        <label>Requester</label>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label>Project Name</label>
+                            <input type="text" class="form-control" [(ngModel)]="request.project_name" name="project_name" #project_name="ngModel" required />
+
+                            <div *ngIf="project_name.invalid && project_name.dirty ">
+                                <br />
+                                <span *ngIf="project_name.errors.required" class="alert alert-danger">Specify a project name</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Objective of the Sample</label>
+                            <textarea class="form-control" [(ngModel)]="request.objective" name="objective" required #objective="ngModel"></textarea>
+
+                            <div *ngIf="objective.invalid && objective.dirty">
+                                <br />
+                                <span *ngIf="objective.errors.required" class="alert alert-danger">Specify the objective</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label>Sample Purpose</label>
+                                    <select class="form-control" [(ngModel)]="request.sample_purpose_id" name="sample_purpose_id" required>
+                                        <option *ngFor="let purpose of purposes" [ngValue]="purpose.id">{{purpose.name}}</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label>Priority</label>
+                                    <select class="form-control" [(ngModel)]="request.sample_priority_id" name="sample_priority_id" required>
+                                        <option *ngFor="let p of priorities" [ngValue]="p.id">{{p.name}}</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label>Lab Test Required?</label>
+                                    <select class="form-control" [(ngModel)]="request.require_test" name="require_test" (change)="filterSteps()">
+                                        <option [ngValue]="false">No</option>
+                                        <option [ngValue]="true">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Comments</label>
+                            <textarea class="form-control" [(ngModel)]="request.comments" name="comments"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="panel panel-default">
+                    <div class="panel-heading xylem-head">
+                        <div class="col-sm-6">
+                            <label>
+                                Shipping Information
+                            </label>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <input type="radio" name="require_shipping" [value]="true" [(ngModel)]="request.require_shipping_info" /> Yes
+                            <input type="radio" name="require_shipping" [value]="false" [(ngModel)]="request.require_shipping_info" /> No
+                        </div>
+
+                    </div>
+                    <div class="panel-body">
+                        <h4 *ngIf="!request.require_shipping_info">N/A</h4>
+                        <div *ngIf="request.require_shipping_info">
+                            <div class="form-group">
+                                <label for="Deliver">Deliver To</label>
+                                <p-autoComplete [suggestions]="filterClients" (completeMethod)="searchClient($event)"
+                                                field="name" [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}"
+                                                name="client_name" [(ngModel)]="selected_client">
+                                </p-autoComplete>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <label for="street">Street & Number </label>
+                                        <p-autoComplete [suggestions]="filteredAddreses" (completeMethod)="searchAddress($event)" (onSelect)="bindAddress($event)"
+                                                        id="street" name="street" field="street_number" [(ngModel)]="selected_address"
+                                                        [style]="{'width':'100%'}" [inputStyle]="{'width':'100%'}">
+                                        </p-autoComplete>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <label>Zip</label>
+                                        <input type="text" class="form-control" [(ngModel)]="request.address.zip" id="zip" name="zip" required #zip="ngModel">
+                                        <div *ngIf="zip.invalid && zip.dirty ">
+                                            <br/>
+                                            <span *ngIf="zip.errors.required" class="alert alert-danger">Specify a zip code</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label>Facility</label>
+                                        <input type="text" class="form-control" [(ngModel)]="request.address.facility" id="facility" name="facility" required #facility="ngModel">
+                                        <div *ngIf="facility.invalid &&  facility.dirty">
+                                            <br/>
+                                            <span *ngIf="facility.errors.required" class="alert alert-danger">Specify a facility</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label>Phone</label>
+                                        <input type="tel" class="form-control" [(ngModel)]="request.address.phone" id="phone" name="phone" required #phone="ngModel">
+                                        <div *ngIf="phone.invalid && phone.dirty ">
+                                            <br/>
+                                            <span *ngIf="phone.errors.required" class="alert alert-danger">Specify a phone number</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <label>Country</label>
+                                        <input type="text" class="form-control" [(ngModel)]="request.address.country" id="country" name="country" required #country="ngModel">
+                                        <div *ngIf="country.invalid && country.dirty">
+                                            <br/>
+                                            <span *ngIf="country.errors.required" class="alert alert-danger">Specify a country</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <label>State</label>
+                                        <input type="text" class="form-control" [(ngModel)]="request.address.state" id="state" name="state" required #state="ngModel">
+                                        <div *ngIf="state.invalid &&  state.dirty">
+                                            <br/>
+                                            <span *ngIf="state.errors.required" class="alert alert-danger">Specify a state</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <label>City</label>
+                                        <input type="text" class="form-control" [(ngModel)]="request.address.city" id="city" name="city" required #city="ngModel">
+                                        <div *ngIf="city.invalid &&  city.dirty">
+                                            <br/>
+                                            <span *ngIf="city.errors.required" class="alert alert-danger">Specify a city</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </td>
+            <td rowspan="2">
+                <p-accordion *ngFor="let step of filterWorkflowSteps; let i = index">
+                    <p-accordionTab>
+                        <p-header>
+                            {{step.name}}
+                        </p-header>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <label>Add an User</label>
+                                <p-autoComplete [(ngModel)]="query" [name]="'query ' + i" [suggestions]="filterUsers" (completeMethod)="searchUser($event)" field="name" (onSelect)="addNewResponsibleIntoStep($event,i)"></p-autoComplete>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2">Responsible</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody *ngFor="let responsible of step.responsibles; let r = index">
+                                        <tr>
+                                            <td>
+                                                <label>
+                                                    {{responsible.primary_responsible_name}}
+                                                </label>
+                                            </td>
+                                            <td>
+                                                <button class="fa" (click)="removeResponsibleFromStep(step,r)"><i class="glyphicon glyphicon-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </p-accordionTab>
+                </p-accordion>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="panel panel-default">
+                    <div class="panel-heading xylem-head">
+                        <label>Concepts</label>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Quantity</th>
+                                            <th>Model Number</th>
+                                            <th>Description</th>
+                                            <th>Specs</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tr *ngFor="let SampleRequestDetail of request.sample_request_details; let i = index">
+                                        <td>
+                                            <input class="form-control" [(ngModel)]="SampleRequestDetail.quantity" id="quantity" [name]="'quantity-' + i" type="number" required #quantity="ngModel">
+                                            <div *ngIf="quantity.invalid && quantity.dirty">
+                                                <br />
+                                                <span *ngIf="quantity.errors.required" class="alert alert-danger">Specify a quantity</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input class="form-control" [(ngModel)]="SampleRequestDetail.model_number" id="model_number" [name]="'model_number-' + i" type="text" required #model_number="ngModel" />
+                                            <div *ngIf="model_number.invalid &&  model_number.dirty">
+                                                <br />
+                                                <span *ngIf="model_number.errors.required" class="alert alert-danger">Specify a model number</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input class="form-control" [(ngModel)]="SampleRequestDetail.description" id="description" [name]="'description-' + i" type="text" required #description="ngModel" />
+                                            <div *ngIf="description.invalid && description.dirty">
+                                                <br />
+                                                <span *ngIf="description.errors.required" class="alert alert-danger">Specify a description</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <textarea class="form-control" [(ngModel)]="SampleRequestDetail.specs" id="specs" [name]="'specs-' + i" rows="3" #specs="ngModel" required></textarea>
+                                            <div *ngIf="specs.invalid && specs.dirty">
+                                                <br />
+                                                <span *ngIf="specs.errors.required" class="alert alert-danger">Specify the specs for the product</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button (click)="removeDetail(i)" class="btn"><i class="glyphicon glyphicon-minus-sign"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="5">
+                                            <button (click)="addNewDetail()" class="btn"><i class="glyphicon glyphicon-plus-sign"></i></button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <div class="row">
+        <div class="col-sm-12">
+            <button type="button" *ngIf="!isSubmiting" (click)="save()" class="btn btn-default" >Save</button>
+            <button type="button" *ngIf="isSubmiting" class="btn btn-default"><i class="fab fa-whmcs fa-pulse"></i></button>
+            <button type="button" *ngIf="!isSubmiting" (click)="cancel()" class="btn btn-danger">Cancel</button>
+        </div>
+    </div>
+</form>
